@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EarthDiff
 
-## Getting Started
+**git diff for the planet.** Pick an area and two date windows — EarthDiff finds the clearest Sentinel-2 passes, detects what changed on the ground, and reports hectares by change type with a before/after view. Numbers come from the pixels; the narrative is checked against those facts.
 
-First, run the development server:
+Built on free public data (Copernicus Sentinel-2 via [Earth Search](https://www.element84.com/earth-search/)). No API key for imagery.
+
+## Status
+
+Early development. The **detection core** is implemented and verified on real scenes (Rondônia deforestation frontier):
+
+- STAC scene search
+- Windowed Cloud-Optimised GeoTIFF reads from Node (`geotiff`)
+- NDVI / NDWI / NDBI, cloud masking, robust differencing, morphology, region labelling
+
+Run the verification spike (writes PNGs to `tmp/`):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run spike:render
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Design and architecture: [docs/design.md](docs/design.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16, TypeScript, Tailwind 4, MapLibre GL (UI in progress), Neon + Upstash + Gemini (planned for cache, rate limits, and grounded summaries).
 
-## Learn More
+## Develop
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install
+npm run dev    # http://localhost:3004
+npm run typecheck
+npm run spike:cog      # single-band COG window read
+npm run spike:perf     # parallel read timing
+npm run spike:render   # full pipeline + PNGs
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Attribution
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contains modified Copernicus Sentinel data.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — see [LICENSE](LICENSE).
