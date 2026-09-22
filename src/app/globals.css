@@ -6,9 +6,7 @@
   --muted: #8b98a8;
   --surface: #0f1623;
   --border: rgba(255, 255, 255, 0.08);
-  --accent-from: #38bdf8;
-  --accent-to: #818cf8;
-  --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -18,7 +16,7 @@
   --color-surface: var(--surface);
   --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 body {
@@ -31,16 +29,72 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.grain {
-  background-image: var(--grain);
+/* Lightweight hero motion — no JS required for first paint */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.hero-in {
+  animation: fade-up 0.45s var(--ease-out) both;
+}
+
+.hero-in-1 {
+  animation-delay: 0.05s;
+}
+.hero-in-2 {
+  animation-delay: 0.12s;
+}
+.hero-in-3 {
+  animation-delay: 0.19s;
+}
+.hero-in-4 {
+  animation-delay: 0.26s;
+}
+.hero-in-5 {
+  animation-delay: 0.33s;
+}
+
+.ambient {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ambient-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  .ambient {
+    animation: ambient-pulse 14s ease-in-out infinite;
+  }
+  .ambient-b {
+    animation-duration: 18s;
+    animation-delay: -4s;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .hero-in,
+  .hero-in-1,
+  .hero-in-2,
+  .hero-in-3,
+  .hero-in-4,
+  .hero-in-5 {
+    animation: none;
   }
 }

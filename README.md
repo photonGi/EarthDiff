@@ -4,9 +4,16 @@
 
 Built on free public data (Copernicus Sentinel-2 via [Earth Search](https://www.element84.com/earth-search/)). No API key for imagery.
 
+## Live
+
+- **Site:** https://earth-diff.vercel.app/
+- **Explorer:** https://earth-diff.vercel.app/explore — run curated presets via `POST /api/analyses`
+
+Analysis pulls public Sentinel-2 COGs on demand (no env vars required yet). On **Vercel Hobby**, serverless functions time out at **10s**; full preset runs often need **15–30s**, so use **Pro** (60s) or run the API locally until caching lands.
+
 ## Status
 
-Early development. The **detection core** is implemented and verified on real scenes (Rondônia deforestation frontier):
+The **detection core** is implemented and verified on real scenes (Rondônia deforestation frontier):
 
 - STAC scene search
 - Windowed Cloud-Optimised GeoTIFF reads from Node (`geotiff`)
