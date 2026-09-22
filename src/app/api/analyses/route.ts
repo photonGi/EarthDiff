@@ -72,13 +72,21 @@ export async function POST(request: Request) {
     });
 
     return Response.json({
-      ...result,
+      beforeSceneId: result.beforeSceneId,
+      afterSceneId: result.afterSceneId,
+      beforeDate: result.beforeDate,
+      afterDate: result.afterDate,
+      seasonalDistanceMonths: result.seasonalDistanceMonths,
+      coverage: result.coverage,
+      grid: result.grid,
+      elapsedMs: result.elapsedMs,
+      warnings: result.warnings,
+      images: result.images,
       detection: {
         rawFlagged: result.detection.rawFlagged,
         cleanedFlagged: result.detection.cleanedFlagged,
         totals: result.detection.totals,
         regionCount: result.detection.regions.length,
-        stats: result.detection.stats,
       },
     });
   } catch (error) {

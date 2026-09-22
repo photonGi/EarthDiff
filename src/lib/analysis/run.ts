@@ -1,9 +1,11 @@
 import { BANDS, searchScenes, seasonalDistanceMonths, type BoundingBox } from "../stac";
 import {
   readBandWindow,
+  readVisual,
   resampleNearest,
   type RasterWindow,
 } from "../raster/read";
+import { encodeAnalysisImages, type EncodedImages } from "./visuals";
 import { buildValidMask, computeIndices, MIN_COVERAGE } from "../raster/indices";
 import { detectChange, type DetectResult } from "../raster/detect";
 
@@ -35,6 +37,7 @@ export type AnalysisResult = {
   coverage: number;
   grid: { width: number; height: number; metresPerPixel: number };
   detection: DetectResult;
+  images: EncodedImages;
   warnings: string[];
   elapsedMs: number;
 };
@@ -103,8 +106,12 @@ export async function runAnalysis(request: AnalysisRequest): Promise<AnalysisRes
     );
   }
 
-  const beforeBands = await readSceneBands(before.hrefs, before.epsg, request.bbox);
-  const afterBands = await readSceneBands(after.hrefs, after.epsg, request.bbox);
+  const [beforeBands, afterBands, beforeVis, afterVis] = await Promise.all([
+    readSceneBands(before.hrefs, before.epsg, request.bbox),
+    readSceneBands(after.hrefs, after.epsg, request.bbox),
+    readVisual(before.hrefs[BANDS.visual], request.bbox, before.epsg),
+    readVisual(after.hrefs[BANDS.visual], request.bbox, after.epsg),
+  ]);
 
   const width = Math.min(beforeBands.red.width, afterBands.red.width);
   const height = Math.min(beforeBands.red.height, afterBands.red.height);
@@ -145,6 +152,18 @@ export async function runAnalysis(request: AnalysisRequest): Promise<AnalysisRes
     minHectares: request.minHectares ?? 2,
   });
 
+  const images = await encodeAnalysisImages({
+    beforeRgb: beforeVis.rgb,
+    beforeWidth: beforeVis.width,
+    beforeHeight: beforeVis.height,
+    afterRgb: afterVis.rgb,
+    afterWidth: afterVis.width,
+    afterHeight: afterVis.height,
+    detection,
+    gridWidth: width,
+    gridHeight: height,
+  });
+
   return {
     status: "complete",
     progress: "complete",
@@ -156,6 +175,7 @@ export async function runAnalysis(request: AnalysisRequest): Promise<AnalysisRes
     coverage,
     grid: { width, height, metresPerPixel: mpp },
     detection,
+    images,
     warnings,
     elapsedMs: Date.now() - started,
   };
